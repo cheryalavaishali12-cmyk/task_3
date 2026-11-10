@@ -1,0 +1,140 @@
+-- ============================================================
+-- SQL Queries Collection
+-- Database: Department & Employee System
+-- ============================================================
+
+-- 1. Create Department Table
+CREATE TABLE Department (
+    Dept_ID INTEGER PRIMARY KEY,
+    Dept_Name VARCHAR(50),
+    Location VARCHAR(50)
+);
+
+-- Insert Data into Department
+INSERT INTO Department VALUES
+(1, 'HR', 'Hyderabad'),
+(2, 'IT', 'Bangalore'),
+(3, 'Finance', 'Chennai'),
+(4, 'Marketing', 'Mumbai'),
+(5, 'Sales', 'Delhi');
+
+-- Verify Department Data
+SELECT * FROM Department;
+
+-- ------------------------------------------------------------
+
+-- 2. Create Employee Table
+CREATE TABLE Employee (
+    Emp_ID INTEGER PRIMARY KEY,
+    Emp_Name VARCHAR(50),
+    Age INTEGER,
+    Salary DECIMAL(10,2),
+    Dept_ID INTEGER,
+    FOREIGN KEY (Dept_ID) REFERENCES Department(Dept_ID)
+);
+
+-- Insert Data into Employee
+INSERT INTO Employee VALUES
+(101, 'Rahul', 25, 30000, 1),
+(102, 'Priya', 27, 45000, 2),
+(103, 'Arjun', 29, 50000, 2),
+(104, 'Sneha', 24, 28000, 3),
+(105, 'Kiran', 30, 55000, 4),
+(106, 'Ananya', 26, 35000, 1),
+(107, 'Ravi', 32, 60000, 5),
+(108, 'Meena', 28, 42000, 3),
+(109, 'Vikram', 31, 48000, 4),
+(110, 'Divya', 23, 25000, 5);
+
+-- Verify Employee Data
+SELECT * FROM Employee;
+
+-- ------------------------------------------------------------
+-- Basic Queries
+-- ------------------------------------------------------------
+
+-- Select specific columns
+SELECT Emp_id, Emp_name FROM Employee;
+
+-- Filter with WHERE clause
+SELECT * FROM Employee WHERE salary >= 40000;
+
+-- Order results by salary descending
+SELECT * FROM Employee ORDER BY Salary DESC;
+
+-- Aggregations & Grouping
+SELECT Dept_ID, AVG(Salary) AS Average_Salary FROM Employee GROUP BY Dept_ID;
+
+SELECT MAX(Salary) AS Highest_Salary, MIN(Salary) AS Lowest_Salary FROM Employee;
+
+-- ------------------------------------------------------------
+-- Joins
+-- ------------------------------------------------------------
+
+-- Inner Join: Get employee details along with department name and location
+SELECT 
+    Employee.Emp_ID,
+    Employee.Emp_Name,
+    Department.Dept_Name,
+    Department.Location
+FROM Employee
+INNER JOIN Department ON Employee.Dept_ID = Department.Dept_ID;
+
+-- Left Join: Get employee names and department names
+SELECT 
+    Employee.Emp_Name,
+    Department.Dept_Name
+FROM Employee
+LEFT JOIN Department ON Employee.Dept_ID = Department.Dept_ID;
+
+-- Right Join: Get employee names and department names
+SELECT 
+    Employee.Emp_Name,
+    Department.Dept_Name
+FROM Employee
+RIGHT JOIN Department ON Employee.Dept_ID = Department.Dept_ID;
+
+-- ------------------------------------------------------------
+-- Advanced Queries (Subqueries, Group By + Having, Views)
+-- ------------------------------------------------------------
+
+-- Subquery: Get employees belonging to departments in Hyderabad or Bangalore
+SELECT * 
+FROM Employee 
+WHERE Dept_ID IN (
+    SELECT Dept_ID 
+    FROM Department 
+    WHERE Location IN ('Hyderabad', 'Bangalore')
+);
+
+-- Group By, Where, and Having: Count employees per department with salary > 30000 where count > 1
+SELECT 
+    Dept_ID,
+    COUNT(*) AS Employee_Count
+FROM Employee
+WHERE Salary > 30000
+GROUP BY Dept_ID
+HAVING COUNT(*) > 1;
+
+-- View Creation & Querying
+CREATE VIEW Employee_Details AS
+SELECT 
+    Employee.Emp_ID,
+    Employee.Emp_Name,
+    Employee.Salary,
+    Department.Dept_Name,
+    Department.Location
+FROM Employee
+INNER JOIN Department ON Employee.Dept_ID = Department.Dept_ID;
+
+SELECT * FROM Employee_Details;
+
+-- Department Analysis: Find department with the highest average salary
+SELECT 
+    Department.Dept_Name,
+    AVG(Employee.Salary) AS Average_Salary
+FROM Employee
+INNER JOIN Department ON Employee.Dept_ID = Department.Dept_ID
+GROUP BY Department.Dept_Name
+ORDER BY Average_Salary DESC
+LIMIT 1;
